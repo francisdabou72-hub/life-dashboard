@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Admin Dashboard | Francis DABOU</title>
+    <style>
+        /* CSS Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-bg: #0f0f0f;
+            --secondary-bg: #1a1a1a;
+            --card-bg: #1e1e1e;
+            --accent-color: #00f3ff;
+            --accent-glow: 0 0 10px rgba(0, 243, 255, 0.5);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border-radius: 16px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-bg) 0%, #161616 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        /* Layout */
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+        }
+
+        /* Header & Clock */
+        .header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .clock {
+            font-size: 2.5rem;
+            font-weight: 300;
+            background: linear-gradient(90deg, var(--accent-color), #0099ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: var(--accent-glow);
+        }
+
+        /* Language Toggle */
+        .language-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .language-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .language-flag {
+            font-size: 1.2rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--accent-color);
+            border-radius: 2px;
+            box-shadow: var(--accent-glow);
+        }
+
+        /* Profile Section */
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent-color);
+            box-shadow: var(--accent-glow);
+            margin-bottom: 20px;
+            background-color: #333; /* Fallback if image doesn't load */
+        }
+
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .profile-role {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        /* Schedule Items */
+        .schedule-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+        }
+
+        .schedule-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-left: 3px solid var(--accent-color);
+            transform: translateX(5px);
+        }
+
+        .activity {
+            font-weight: 500;
+        }
+
+        .duration {
+            color: var(--accent-color);
+            font-weight: 600;
+            background: rgba(0, 243, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        /* Current Time Highlight */
+        .current-time {
+            background: rgba(0, 243, 255, 0.15);
+            border-left: 3px solid var(--accent-color);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .clock {
+                font-size: 2rem;
+            }
+            
+            .language-toggle {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header with Clock -->
+        <header class="header">
+            <h1 id="dashboard-title">Life Admin Dashboard</h1>
+            <div class="clock" id="clock">00:00:00</div>
+            <div class="language-toggle" id="language-toggle">
+                <span class="language-flag" id="language-flag">🌐</span>
+                <span id="language-text">English</span>
+            </div>
+        </header>
+
+        <!-- Profile Section -->
+        <section class="card profile-section">
+            <img src="franc.jpg" alt="Francis DABOU" class="profile-image">
+            <h2 class="profile-name">Francis DABOU</h2>
+            <p class="profile-role" id="profile-role">Developer & Personal Growth Architect</p>
+        </section>
+
+        <!-- Daily Schedule -->
+        <section class="card">
+            <h2 class="card-title" id="daily-schedule-title">Daily Schedule (Monday–Saturday)</h2>
+            <div class="schedule-list" id="daily-schedule">
+                <!-- Schedule items will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Weekly Program -->
+        <section class="card">
+            <h2 class="card-title" id="weekly-program-title">Weekly Program (Sunday)</h2>
+            <div class="schedule-list" id="weekly-program">
+                <!-- Weekly program items will be populated by JavaScript -->
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Language Configuration
+        const translations = {
+            en: {
+                dashboardTitle: "Life Admin Dashboard",
+                profileRole: "Developer & Personal Growth Architect",
+                dailyScheduleTitle: "Daily Schedule (Monday–Saturday)",
+                weeklyProgramTitle: "Weekly Program (Sunday)",
+                languageText: "English",
+                languageFlag: "🇺🇸",
+                dailySchedule: [
+                    { activity: "Web Development (Coding)", duration: "10 hours" },
+                    { activity: "Xoom Education", duration: "4 hours" },
+                    { activity: "Tech Reading", duration: "1 hour" },
+                    { activity: "Podcast Creation and Watching", duration: "1 hour" },
+                    { activity: "English Grammar Practice", duration: "1 hour" },
+                    { activity: "Exercise / Sport", duration: "1 hour" },
+                    { activity: "Meditation & Visualization", duration: "1 hour" },
+                    { activity: "Sleep", duration: "4 hours" },
+                    { activity: "Work Duties / Homework", duration: "1 hour" }
+                ],
+                weeklyProgram: [
+                    { activity: "Weekly Review", duration: "Flexible" },
+                    { activity: "Social / Family Relationship", duration: "Flexible" },
+                    { activity: "Planning & Strategy Update", duration: "Flexible" }
+                ]
+            },
+            fr: {
+                dashboardTitle: "Tableau de Bord d'Administration de Vie",
+                profileRole: "Développeur & Architecte de Croissance Personnelle",
+                dailyScheduleTitle: "Emploi du Temps Quotidien (Lundi–Samedi)",
+                weeklyProgramTitle: "Programme Hebdomadaire (Dimanche)",
+                languageText: "Français",
+                languageFlag: "🇫🇷",
+                dailySchedule: [
+                    { activity: "Développement Web (Codage)", duration: "10 heures" },
+                    { activity: "Éducation Xoom", duration: "4 heures" },
+                    { activity: "Lecture Technologique", duration: "1 heure" },
+                    { activity: "Création et Regard de Podcast", duration: "1 heure" },
+                    { activity: "Pratique de Grammaire Anglaise", duration: "1 heure" },
+                    { activity: "Exercice / Sport", duration: "1 heure" },
+                    { activity: "Méditation & Visualisation", duration: "1 heure" },
+                    { activity: "Sommeil", duration: "4 heures" },
+                    { activity: "Devoirs Professionnels / Travaux", duration: "1 heure" }
+                ],
+                weeklyProgram: [
+                    { activity: "Revue Hebdomadaire", duration: "Flexible" },
+                    { activity: "Relation Sociale / Familiale", duration: "Flexible" },
+                    { activity: "Mise à Jour de Planification & Stratégie", duration: "Flexible" }
+                ]
+            }
+        };
+
+        // Current language state
+        let currentLanguage = 'en';
+
+        // Function to detect user's preferred language
+        function detectUserLanguage() {
+            const browserLang = navigator.language || navigator.userLanguage;
+            return browserLang.startsWith('fr') ? 'fr' : 'en';
+        }
+
+        // Function to set language
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            const t = translations[lang];
+            
+            // Update UI elements
+            document.getElementById('dashboard-title').textContent = t.dashboardTitle;
+            document.getElementById('profile-role').textContent = t.profileRole;
+            document.getElementById('daily-schedule-title').textContent = t.dailyScheduleTitle;
+            document.getElementById('weekly-program-title').textContent = t.weeklyProgramTitle;
+            document.getElementById('language-text').textContent = t.languageText;
+            document.getElementById('language-flag').textContent = t.languageFlag;
+            
+            // Re-render schedules
+            renderScheduleItems(t.dailySchedule, 'daily-schedule');
+            renderScheduleItems(t.weeklyProgram, 'weekly-program');
+            
+            // Re-apply current time highlighting
+            highlightCurrentTimeBlock();
+            
+            // Save preference to localStorage
+            localStorage.setItem('preferredLanguage', lang);
+        }
+
+        // Toggle language function
+        function toggleLanguage() {
+            const newLang = currentLanguage === 'en' ? 'fr' : 'en';
+            setLanguage(newLang);
+        }
+
+        // Clock Functionality
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString(currentLanguage === 'fr' ? 'fr-FR' : 'en-US', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('clock').textContent = timeString;
+        }
+
+        // Render Schedule Items
+        function renderScheduleItems(scheduleData, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            scheduleData.forEach(item => {
+                const scheduleItem = document.createElement('div');
+                scheduleItem.className = 'schedule-item';
+                
+                scheduleItem.innerHTML = `
+                    <span class="activity">${item.activity}</span>
+                    <span class="duration">${item.duration}</span>
+                `;
+                
+                container.appendChild(scheduleItem);
+            });
+        }
+
+        // Highlight Current Time Block (Simplified - based on hour)
+        function highlightCurrentTimeBlock() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            
+            // This is a simplified approach - you might want to implement
+            // more sophisticated logic based on your actual schedule timing
+            
+            const dailyItems = document.querySelectorAll('#daily-schedule .schedule-item');
+            
+            // Clear previous highlights
+            dailyItems.forEach(item => item.classList.remove('current-time'));
+            
+            // Simple highlight based on hour (adjust logic as needed)
+            if (currentHour >= 6 && currentHour <= 22) {
+                const index = Math.min(Math.floor((currentHour - 6) / 2), dailyItems.length - 1);
+                if (dailyItems[index]) {
+                    dailyItems[index].classList.add('current-time');
+                }
+            }
+        }
+
+        // Initialize Dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial language based on user preference or browser language
+            const savedLanguage = localStorage.getItem('preferredLanguage');
+            const userLanguage = savedLanguage || detectUserLanguage();
+            setLanguage(userLanguage);
+            
+            // Update clock immediately and then every second
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+            // Set up language toggle
+            document.getElementById('language-toggle').addEventListener('click', toggleLanguage);
+            
+            // Set up current time highlighting
+            highlightCurrentTimeBlock();
+            setInterval(highlightCurrentTimeBlock, 60000); // Update every minute
+        });
+    </script>
+</body>
+</html>
